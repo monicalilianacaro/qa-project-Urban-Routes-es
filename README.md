@@ -21,16 +21,19 @@ Este proyecto en particular automatiza el **flujo de solicitud de taxi**: desde 
 - **Python 3.14**
 - **Selenium WebDriver** — automatización del navegador (Chrome)
 - **pytest** — framework de pruebas
-- **Page Object Model (POM)** — los localizadores y las acciones sobre la página viven en la clase `UrbanRoutesPage`, separados de la lógica de las pruebas (`TestUrbanRoutes`), para que el código sea más mantenible y reutilizable
+- **Page Object Model (POM)** — los localizadores y las acciones sobre la página viven en la clase `UrbanRoutesPage` (en `pages.py`), separados de la lógica de las pruebas (`TestUrbanRoutes`, en `main.py`), para que el código sea más mantenible y reutilizable
 - **Esperas explícitas (`WebDriverWait` + `expected_conditions`)** — en lugar de esperas fijas (`time.sleep`), las pruebas esperan a que cada elemento esté visible o sea clicable, lo cual es necesario porque Urban Routes es una aplicación React (SPA) que renderiza su contenido de forma asíncrona
-- **Interceptación de peticiones de red** (`driver.get_log('performance')` + Chrome DevTools Protocol) — se usa en `retrieve_phone_code()` para leer el código de confirmación del teléfono directamente de la respuesta del servidor, sin depender de un teléfono real
+- **Interceptación de peticiones de red** (`driver.get_log('performance')` + Chrome DevTools Protocol) — se usa en `retrieve_phone_code()` (en `helpers.py`) para leer el código de confirmación del teléfono directamente de la respuesta del servidor, sin depender de un teléfono real
+- **Pruebas independientes** (`setup_method` / `teardown_method`) — cada prueba abre y cierra su propia sesión de navegador, y arma sus propias precondiciones (dirección, tarifa) antes de ejecutar su acción y su assert. Así, si una prueba falla, no arrastra a las demás, y cualquiera se puede ejecutar sola (ej. `pytest main.py::TestUrbanRoutes::test_fill_card`)
 
 ## Estructura del proyecto
 
 ```
 qa-project-Urban-Routes-es/
 ├── data.py       # URL del servidor y datos de prueba (dirección, teléfono, tarjeta, mensaje)
-├── main.py       # UrbanRoutesPage (Page Object) y TestUrbanRoutes (pruebas)
+├── helpers.py    # retrieve_phone_code(): lee el código de confirmación del teléfono
+├── pages.py      # UrbanRoutesPage: localizadores y métodos de interacción (Page Object)
+├── main.py       # TestUrbanRoutes: casos de prueba y assertions
 └── README.md
 ```
 
@@ -65,7 +68,7 @@ pytest main.py -v
 
 O desde PyCharm: clic derecho sobre `main.py` → **"Run pytest in main.py"**.
 
-Las 9 pruebas se ejecutan en orden y comparten la misma sesión del navegador (se abre una sola vez en `setup_class` y se cierra al final en `teardown_class`), ya que cada paso depende de que el estado dejado por el paso anterior siga presente en la página.
+Cada prueba abre su propia sesión de navegador (`setup_method`) y la cierra al terminar (`teardown_method`), por lo que son independientes entre sí: si una falla, no afecta a las demás, y cualquiera se puede ejecutar sola. Esto hace que la suite tarde más en total (se abren y cierran varias instancias de Chrome), a cambio de resultados más confiables.
 
 ### Notas
 
