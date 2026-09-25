@@ -14,7 +14,7 @@ Este proyecto en particular automatiza el **flujo de solicitud de taxi**: desde 
 - Solicitud de manta y pañuelos
 - Solicitud de 2 helados
 - Confirmación del pedido y verificación de que aparece el modal de búsqueda de taxi
-- Verificación de que se muestra la información del conductor una vez asignado 
+- Verificación de que se muestra la información del conductor una vez asignado (paso opcional)
 
 ## Tecnologías y técnicas utilizadas
 
